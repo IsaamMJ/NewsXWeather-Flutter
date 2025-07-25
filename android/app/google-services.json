@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "974435991484",
+    "project_id": "jiitak-94584",
+    "storage_bucket": "jiitak-94584.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:974435991484:android:2065c58ee43d29abe0b5b9",
+        "android_client_info": {
+          "package_name": "com.example.skyfeed"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAF2OWFrm2-ox_uPgAS-8yLKLawf04IYI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

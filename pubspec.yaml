@@ -1,0 +1,38 @@
+name: skyfeed
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  get: ^4.7.2
+  flutter_launcher_icons: ^0.14.4
+  flutter_dotenv: ^5.2.1
+  firebase_core: ^3.15.2
+  firebase_auth: ^5.7.0
+  shared_preferences: ^2.5.3
+  intl_phone_number_input: ^0.7.4
+  google_sign_in: ^7.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/android/logo.png  # Ensure this exists in your project folder
+
+flutter_icons:  # <-- Moved OUTSIDE the flutter: block
+  android: true
+  ios: true
+  image_path: "assets/android/logo.png"
+  adaptive_icon_foreground: "assets/android/logo.png"
+  adaptive_icon_background: "#f13223"
+  remove_alpha_ios: true
