@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../../../routes/app_routes.dart'; // Firebase Auth
 
 class LoginController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -34,6 +36,7 @@ class LoginController extends GetxController {
       final User? user = userCredential.user;
       if (user != null) {
         Get.snackbar('Login Success', 'Welcome ${user.email}');
+        Get.offNamed(AppRoutes.mainNavigation);
         // Optionally navigate to another page after login
       } else {
         Get.snackbar('Login Failed', 'Invalid email or password.');

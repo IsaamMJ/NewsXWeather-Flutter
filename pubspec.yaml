@@ -18,6 +18,8 @@ dependencies:
   shared_preferences: ^2.5.3
   intl_phone_number_input: ^0.7.4
   google_sign_in: ^7.1.1
+  http: ^1.4.0
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

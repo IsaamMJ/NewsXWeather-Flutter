@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../../../routes/app_routes.dart'; // Firebase Auth
 
 class SignUpController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -28,12 +30,15 @@ class SignUpController extends GetxController {
       // Create user with email and password
       await _auth.createUserWithEmailAndPassword(email: email, password: password);
       Get.snackbar('Success', 'Account created successfully');
-      // Optionally navigate to another page after sign-up
+
+      // Navigate to Home Screen after successful account creation
+      Get.offNamed(AppRoutes.mainNavigation);  // Navigates to the Main Navigation screen (which contains the Home screen)
     } catch (e) {
       Get.snackbar('Error', 'Failed to create account: $e');
     } finally {
       isLoading.value = false;
     }
+
   }
 
   @override
