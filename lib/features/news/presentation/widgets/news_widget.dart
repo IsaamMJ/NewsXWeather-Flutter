@@ -11,23 +11,23 @@ class NewsWidget extends StatelessWidget {
 
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 100),
+          child: Center(child: CircularProgressIndicator()),
+        );
       }
 
       if (controller.articles.isEmpty) {
-        return const Center(child: Text('No news available'));
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 100),
+          child: Center(child: Text('No news available')),
+        );
       }
 
-      return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(), // Avoid scroll conflicts
-        itemCount: controller.articles.length,
-        itemBuilder: (context, index) {
-          final article = controller.articles[index];
-
+      return Column(
+        children: controller.articles.map((article) {
           return Container(
-            margin: const EdgeInsets.only(bottom: 20),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -60,8 +60,7 @@ class NewsWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // Content
+                // Text content
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -98,7 +97,7 @@ class NewsWidget extends StatelessWidget {
               ],
             ),
           );
-        },
+        }).toList(),
       );
     });
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import '../../domain/entities/article.dart';
 
@@ -23,7 +24,8 @@ class NewsApiDataSource {
       if (response.body.isEmpty) {
         print('[NewsApiDataSource] Response Body is empty!');
       } else {
-        print('[NewsApiDataSource] Response Body: ${response.body.substring(0, 300)}...'); // preview only
+        final previewLength = min(response.body.length, 300);
+        print('[NewsApiDataSource] Response Body: ${response.body.substring(0, previewLength)}...');
       }
 
       if (response.statusCode == 200) {

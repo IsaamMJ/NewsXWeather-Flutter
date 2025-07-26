@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+
 import '../../../../news/controllers/news_controller.dart';
 import '../../../../news/data/datasources/news_api_datasource.dart';
 import '../../../../news/data/repositories/news_repository_impl.dart';
@@ -16,21 +17,26 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize dependencies only once and store the controller globally in memory
+    // Lazy initialize controllers once
     Get.lazyPut(() =>
         WeatherController(GetWeatherUseCase(WeatherRepositoryImpl(http.Client()))));
-
     Get.lazyPut(() =>
         NewsController(GetNewsUseCase(NewsRepositoryImpl(NewsApiDataSource(http.Client())))));
 
+    final newsController = Get.find<NewsController>();
+
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: const [
-              WeatherWidget(), // Weather Widget that displays weather data
-              NewsWidget(),    // News Widget that displays news articles
-            ],
+        child: RefreshIndicator(
+          onRefresh: () => newsController.fetchWeatherBasedNews(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(), // Ensures RefreshIndicator works
+            child: Column(
+              children: const [
+                WeatherWidget(),
+                NewsWidget(),
+              ],
+            ),
           ),
         ),
       ),
