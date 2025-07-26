@@ -5,24 +5,13 @@ class Article {
   final String description;
   final String imageUrl;
   final String url;
-  final String date;  // Add the date field
+  final String date;
 
-  Article({
+  const Article({
     required this.title,
     required this.description,
     required this.imageUrl,
     required this.url,
-    required this.date,  // Initialize the date field
+    required this.date,
   });
-
-  // Add a factory constructor to convert JSON to Article object
-  factory Article.fromJson(Map<String, dynamic> json) {
-    return Article(
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      imageUrl: json['urlToImage'] ?? '',
-      url: json['url'] ?? '',
-      date: json['publishedAt'] ?? '', // Get the published date
-    );
-  }
 }

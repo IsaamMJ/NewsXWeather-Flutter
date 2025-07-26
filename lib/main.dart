@@ -1,38 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'core/storage/shared_prefs_keys.dart';
+import 'core/theme/app_theme.dart';
 import 'routes/app_routes.dart';
 import 'routes/app_pages.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
   // Initialize Firebase
   await Firebase.initializeApp();
 
-  // Register shared preferences
+  // Load SharedPreferences and inject into GetX
   final prefs = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(prefs, permanent: true);
 
-  // Check if the user is logged in
-  final String? userId = prefs.getString('userId'); // Store user ID when logged in
+  // Read theme and login status from SharedPreferences
+  final bool isDark = prefs.getBool(SharedPrefsKeys.isDarkMode) ?? false;
+  final String? userId = prefs.getString(SharedPrefsKeys.userId);
 
-  runApp(SkyFeed(initialRoute: userId != null ? AppRoutes.mainNavigation : AppRoutes.login));
+  runApp(SkyFeed(
+    initialRoute: userId != null ? AppRoutes.mainNavigation : AppRoutes.login,
+    initialThemeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+  ));
 }
 
 class SkyFeed extends StatelessWidget {
   final String initialRoute;
+  final ThemeMode initialThemeMode;
 
-  const SkyFeed({Key? key, required this.initialRoute}) : super(key: key);
+  const SkyFeed({
+    Key? key,
+    required this.initialRoute,
+    required this.initialThemeMode,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'SkyFeed',
       debugShowCheckedModeBanner: false,
-      initialRoute: initialRoute, // Navigate based on the user login state
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: initialThemeMode,
+      initialRoute: initialRoute,
       getPages: AppPages.pages,
     );
   }

@@ -3,6 +3,30 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../../../core/storage/shared_prefs_keys.dart';
+
+/// Use an enum instead of raw strings
+enum TemperatureUnit { celsius, fahrenheit }
+
+extension TemperatureUnitX on TemperatureUnit {
+  String get label => this == TemperatureUnit.celsius
+      ? 'Celsius (°C)'
+      : 'Fahrenheit (°F)';
+
+  static TemperatureUnit fromString(String v) {
+    switch (v.toLowerCase()) {
+      case 'fahrenheit':
+        return TemperatureUnit.fahrenheit;
+      case 'celsius':
+      default:
+        return TemperatureUnit.celsius;
+    }
+  }
+
+  String get storageValue =>
+      this == TemperatureUnit.celsius ? 'Celsius' : 'Fahrenheit';
+}
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
@@ -11,8 +35,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static const int maxCategories = 5;
-  final Map<String, String> _categories = const {
+  static const int _maxCategories = 5;
+
+  static const Map<String, String> _categories = {
     'business': 'Business',
     'crime': 'Crime',
     'domestic': 'Domestic',
@@ -32,68 +57,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'world': 'World',
   };
 
-  String? userId;
-  String selectedTemperatureUnit = 'Celsius';
-  List<String> selectedCategories = [];
-  bool isDarkMode = false;
+  String? _userId;
+  TemperatureUnit _temperatureUnit = TemperatureUnit.celsius;
+  List<String> _selectedCategories = [];
+  bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-    _loadPreferences();
+    _loadAll();
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _loadAll() async {
     final prefs = await SharedPreferences.getInstance();
+
     setState(() {
-      userId = prefs.getString('userId');
+      _userId = prefs.getString(SharedPrefsKeys.userId);
+      _temperatureUnit = TemperatureUnitX.fromString(
+        prefs.getString(SharedPrefsKeys.temperatureUnit) ?? 'Celsius',
+      );
+      _selectedCategories =
+          prefs.getStringList(SharedPrefsKeys.newsCategories) ?? [];
+      _isDarkMode = prefs.getBool(SharedPrefsKeys.isDarkMode) ?? false;
     });
+
+    // apply the stored theme instantly
+    Get.changeThemeMode(_isDarkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
-  Future<void> _loadPreferences() async {
+  Future<void> _saveTemperatureUnit(TemperatureUnit unit) async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      selectedTemperatureUnit = prefs.getString('temperatureUnit') ?? 'Celsius';
-      selectedCategories = prefs.getStringList('newsCategories') ?? [];
-      isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    });
-  }
-
-  Future<void> _saveTemperatureUnit(String unit) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('temperatureUnit', unit);
-    setState(() => selectedTemperatureUnit = unit);
+    await prefs.setString(SharedPrefsKeys.temperatureUnit, unit.storageValue);
+    setState(() => _temperatureUnit = unit);
   }
 
   Future<void> _saveCategories() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('newsCategories', selectedCategories);
+    await prefs.setStringList(
+        SharedPrefsKeys.newsCategories, _selectedCategories);
   }
 
   Future<void> _saveDarkMode(bool isDark) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDarkMode', isDark);
-    setState(() => isDarkMode = isDark);
+    await prefs.setBool(SharedPrefsKeys.isDarkMode, isDark);
+    setState(() => _isDarkMode = isDark);
     Get.changeThemeMode(isDark ? ThemeMode.dark : ThemeMode.light);
   }
 
-  // Future<void> _logout() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.remove('userId');
-  //   await FirebaseAuth.instance.signOut();
-  //   if (mounted) {
-  //     Navigator.of(context).pushReplacementNamed('/login');
-  //   }
-  // }
-
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-
-    // Clear all stored keys (userId, name, preferences, etc.)
-    await prefs.clear();
-
-    // Sign out from Firebase
+    await prefs.clear(); // removes every saved key
     await FirebaseAuth.instance.signOut();
 
     if (mounted) {
@@ -104,15 +117,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cardColor = theme.brightness == Brightness.dark
-        ? theme.cardColor
-        : Colors.white;
+    final isDark = theme.brightness == Brightness.dark;
+    final cardColor = theme.cardTheme.color ?? (isDark ? theme.cardColor : Colors.white);
     final primary = theme.colorScheme.primary;
 
     return Scaffold(
-      backgroundColor: theme.brightness == Brightness.dark
-          ? theme.scaffoldBackgroundColor
-          : const Color(0xFFF7F7FB),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
@@ -127,15 +137,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Temperature
               _SectionCard(
                 color: cardColor,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _SectionTitle('Temperature Unit'),
+                    const _SectionTitle('Temperature Unit'),
                     const SizedBox(height: 12),
                     _TemperatureToggle(
-                      value: selectedTemperatureUnit,
+                      value: _temperatureUnit,
                       onChanged: _saveTemperatureUnit,
                       primary: primary,
                     ),
@@ -144,19 +155,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
 
+              // Categories
               _SectionCard(
                 color: cardColor,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _SectionTitle(
-                        'News Categories (${selectedCategories.length}/$maxCategories)'),
+                      'News Categories (${_selectedCategories.length}/$_maxCategories)',
+                    ),
                     const SizedBox(height: 4),
                     Text(
-                      "Select up to 5 news categories you're interested in",
+                      "Select up to $_maxCategories news categories you're interested in",
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color:
-                        theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -164,8 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       spacing: 8,
                       runSpacing: 8,
                       children: _categories.entries.map((e) {
-                        final isSelected =
-                        selectedCategories.contains(e.key);
+                        final isSelected = _selectedCategories.contains(e.key);
                         return FilterChip(
                           label: Text(
                             e.value,
@@ -177,13 +188,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           selected: isSelected,
                           showCheckmark: isSelected,
                           selectedColor: primary,
-                          backgroundColor: theme.colorScheme.surfaceVariant
-                              .withOpacity(0.4),
+                          backgroundColor:
+                          theme.colorScheme.surfaceVariant.withOpacity(0.4),
                           onSelected: (selected) {
                             setState(() {
                               if (selected) {
-                                if (selectedCategories.length < maxCategories) {
-                                  selectedCategories.add(e.key);
+                                if (_selectedCategories.length < _maxCategories) {
+                                  _selectedCategories.add(e.key);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -194,7 +205,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   );
                                 }
                               } else {
-                                selectedCategories.remove(e.key);
+                                _selectedCategories.remove(e.key);
                               }
                             });
                             _saveCategories();
@@ -207,6 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
 
+              // About
               _SectionCard(
                 color: cardColor,
                 child: Column(
@@ -219,7 +231,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     SizedBox(height: 8),
-                    _Bullet(text: 'News articles are filtered based on current weather conditions:'),
+                    _Bullet(
+                        text:
+                        'News articles are filtered based on current weather conditions:'),
                     SizedBox(height: 8),
                     _Bullet(text: 'Cold weather: Serious and dramatic news'),
                     _Bullet(text: 'Hot weather: Safety and danger-related news'),
@@ -229,6 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
 
+              // Dark mode toggle
               _SectionCard(
                 color: cardColor,
                 child: Row(
@@ -241,7 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     Switch(
-                      value: isDarkMode,
+                      value: _isDarkMode,
                       onChanged: _saveDarkMode,
                     ),
                   ],
@@ -249,13 +264,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 24),
 
-              if (userId != null) ...[
+              if (_userId != null) ...[
                 Center(
                   child: Text(
-                    'User ID: $userId',
+                    'User ID: $_userId',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color:
-                      theme.colorScheme.onBackground.withOpacity(0.5),
+                      color: theme.colorScheme.onBackground.withOpacity(0.5),
                     ),
                   ),
                 ),
@@ -294,11 +308,12 @@ class _SectionCard extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
+          if (Theme.of(context).brightness == Brightness.light)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
         ],
       ),
       child: child,
@@ -323,8 +338,8 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _TemperatureToggle extends StatelessWidget {
-  final String value;
-  final ValueChanged<String> onChanged;
+  final TemperatureUnit value;
+  final ValueChanged<TemperatureUnit> onChanged;
   final Color primary;
 
   const _TemperatureToggle({
@@ -338,14 +353,32 @@ class _TemperatureToggle extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
-        _pill('Celsius (°C)', value == 'Celsius', () => onChanged('Celsius'), primary, theme),
+        _pill(
+          TemperatureUnit.celsius.label,
+          value == TemperatureUnit.celsius,
+              () => onChanged(TemperatureUnit.celsius),
+          primary,
+          theme,
+        ),
         const SizedBox(width: 12),
-        _pill('Fahrenheit (°F)', value == 'Fahrenheit', () => onChanged('Fahrenheit'), primary, theme),
+        _pill(
+          TemperatureUnit.fahrenheit.label,
+          value == TemperatureUnit.fahrenheit,
+              () => onChanged(TemperatureUnit.fahrenheit),
+          primary,
+          theme,
+        ),
       ],
     );
   }
 
-  Widget _pill(String label, bool selected, VoidCallback onTap, Color primary, ThemeData theme) {
+  Widget _pill(
+      String label,
+      bool selected,
+      VoidCallback onTap,
+      Color primary,
+      ThemeData theme,
+      ) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
