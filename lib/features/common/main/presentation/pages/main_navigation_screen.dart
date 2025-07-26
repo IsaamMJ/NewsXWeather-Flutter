@@ -43,9 +43,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SkyFeed'),
-      ),
       body: _screens[_selectedIndex], // Show the selected screen
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex, // Set selected index

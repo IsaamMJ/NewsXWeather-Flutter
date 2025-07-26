@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../controller/settings_controller.dart';
 import '../widget/bullet.dart';
 import '../widget/category_selector.dart';
@@ -121,7 +120,7 @@ class SettingsScreen extends StatelessWidget {
                 if (controller.userId.value != null) ...[
                   Center(
                     child: Text(
-                      'User ID: \${controller.userId.value}',
+                      'User ID: ${controller.userId.value}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onBackground.withOpacity(0.5),
                       ),

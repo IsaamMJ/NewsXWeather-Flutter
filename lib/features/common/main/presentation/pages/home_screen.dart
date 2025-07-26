@@ -10,6 +10,7 @@ import '../../../../news/data/repositories/news_repository_impl.dart';
 import '../../../../news/domain/usecases/get_news_usecase.dart';
 import '../../../../news/presentation/widgets/news_widget.dart';
 
+import '../../../../settings/controller/settings_controller.dart';
 import '../../../../weather/controllers/weather_controller.dart';
 import '../../../../weather/data/repositories/weather_repository_impl.dart';
 import '../../../../weather/domain/usecases/get_weather_usecase.dart';
@@ -23,9 +24,11 @@ class HomeScreen extends StatelessWidget {
     final httpClient = http.Client();
     final apiClient = ApiClient(httpClient);
 
-    // Lazy initialize WeatherController
-    Get.lazyPut(() =>
-        WeatherController(GetWeatherUseCase(WeatherRepositoryImpl(httpClient))));
+    // Initialize SettingsController before NewsController
+    Get.lazyPut(() => SettingsController());
+
+    // Lazy initialize WeatherController, but only if not already loaded
+    Get.lazyPut(() => WeatherController(GetWeatherUseCase(WeatherRepositoryImpl(httpClient))));
 
     // Lazy initialize NewsController with centralized ApiClient and secure API key
     Get.lazyPut(() => NewsController(
@@ -37,17 +40,31 @@ class HomeScreen extends StatelessWidget {
     ));
 
     final newsController = Get.find<NewsController>();
+    final weatherController = Get.find<WeatherController>();
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => newsController.fetchWeatherBasedNews(),
+          onRefresh: () async {
+            // Refresh only the news, not the weather
+            await newsController.fetchWeatherBasedNews();
+          },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
-              children: const [
-                WeatherWidget(),
-                NewsWidget(),
+              children: [
+                // WeatherWidget should not rebuild unless necessary
+                GetBuilder<WeatherController>(
+                  builder: (_) {
+                    return const WeatherWidget(); // Display the Weather widget
+                  },
+                ),
+                // NewsWidget should be able to refresh independently
+                GetBuilder<NewsController>(
+                  builder: (_) {
+                    return const NewsWidget(); // Display the News widget
+                  },
+                ),
               ],
             ),
           ),

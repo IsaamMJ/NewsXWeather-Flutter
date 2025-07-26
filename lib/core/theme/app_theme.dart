@@ -20,6 +20,7 @@ class AppTheme {
     snackBarTheme: const SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
     ),
+
   );
 
   static final ThemeData darkTheme = ThemeData(
@@ -41,5 +42,6 @@ class AppTheme {
     snackBarTheme: const SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
     ),
+
   );
 }

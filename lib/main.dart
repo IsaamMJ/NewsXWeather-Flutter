@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -26,9 +26,13 @@ Future<void> main() async {
   final bool isDark = prefs.getBool(SharedPrefsKeys.isDarkMode) ?? false;
   final String? userId = prefs.getString(SharedPrefsKeys.userId);
 
+  // Check system's theme setting
+  final Brightness systemBrightness = WidgetsBinding.instance.window.platformBrightness;
+  final ThemeMode systemThemeMode = systemBrightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
+
   runApp(SkyFeed(
     initialRoute: userId != null ? AppRoutes.mainNavigation : AppRoutes.login,
-    initialThemeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+    initialThemeMode: isDark ? ThemeMode.dark : systemThemeMode, // Use saved preference or system default
   ));
 }
 
@@ -49,7 +53,7 @@ class SkyFeed extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: initialThemeMode,
+      themeMode: initialThemeMode, // Set the initial theme mode
       initialRoute: initialRoute,
       getPages: AppPages.pages,
     );

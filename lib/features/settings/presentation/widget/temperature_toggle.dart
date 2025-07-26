@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../controller/settings_controller.dart';
+import 'package:get/get.dart';
+import '../../../weather/controllers/weather_controller.dart';
+import '../../controller/settings_controller.dart'; // Import the WeatherController
 
 class TemperatureToggle extends StatelessWidget {
   final TemperatureUnit value;
@@ -21,7 +23,11 @@ class TemperatureToggle extends StatelessWidget {
         _pill(
           TemperatureUnit.celsius.label,
           value == TemperatureUnit.celsius,
-              () => onChanged(TemperatureUnit.celsius),
+              () {
+            onChanged(TemperatureUnit.celsius);
+            // Update WeatherController with the new temperature unit
+            Get.find<WeatherController>().setTemperatureUnit('Celsius');
+          },
           primary,
           theme,
         ),
@@ -29,7 +35,11 @@ class TemperatureToggle extends StatelessWidget {
         _pill(
           TemperatureUnit.fahrenheit.label,
           value == TemperatureUnit.fahrenheit,
-              () => onChanged(TemperatureUnit.fahrenheit),
+              () {
+            onChanged(TemperatureUnit.fahrenheit);
+            // Update WeatherController with the new temperature unit
+            Get.find<WeatherController>().setTemperatureUnit('Fahrenheit');
+          },
           primary,
           theme,
         ),

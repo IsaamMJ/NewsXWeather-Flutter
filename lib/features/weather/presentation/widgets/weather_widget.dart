@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/theme/app_colors.dart'; // Import your AppColors for styling
 import '../../controllers/weather_controller.dart';
 import 'forecast_widget.dart';
 
@@ -21,11 +22,12 @@ class WeatherWidget extends StatelessWidget {
         final weather = controller.weather!;
         final temperatureUnit = controller.selectedTemperatureUnit;
 
+        // Convert temperature based on the selected unit (Celsius or Fahrenheit)
         double convertTemperature(double temperature) {
           if (temperatureUnit == 'Fahrenheit') {
             return (temperature * 9 / 5) + 32;
           }
-          return temperature;
+          return temperature; // Default is Celsius
         }
 
         String getTemperatureLabel(double tempCelsius) {
@@ -35,15 +37,26 @@ class WeatherWidget extends StatelessWidget {
           return 'Cold';
         }
 
+        // Calculate the display temperature in the selected unit
         final double displayTemp = convertTemperature(weather.temperature);
         final tempLabel = getTemperatureLabel(weather.temperature);
+
+        // Get the dynamic text color for light and dark themes
+        Color textColor = AppColors.getTextPrimary(context);
 
         return Container(
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.blueAccent,
+            color: AppColors.getCardColor(context).withOpacity(0.9), // Dynamic card color based on theme
             borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.getAccent(context).withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(4, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,33 +69,36 @@ class WeatherWidget extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Static City Name (No rebuild needed)
                         Text(
                           weather.city,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
-                            color: Colors.white,
+                            color: textColor, // Dynamic text color
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        // Dynamic Temperature - wrapped in GetBuilder for updates
                         Text(
                           '${displayTemp.toStringAsFixed(1)}°${temperatureUnit == 'Celsius' ? 'C' : 'F'}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 48,
-                            color: Colors.white,
+                            color: textColor, // Dynamic text color
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        // Dynamic Temperature Label - wrapped in GetBuilder for updates
                         Text(
                           tempLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            color: Colors.white,
+                            color: AppColors.getTextSecondary(context),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.wb_cloudy_rounded, size: 48, color: Colors.white),
+                  Icon(Icons.wb_cloudy_rounded, size: 48, color: textColor), // Dynamic icon color
                 ],
               ),
               const SizedBox(height: 16),
@@ -93,21 +109,23 @@ class WeatherWidget extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.water_drop, color: Colors.white),
+                      Icon(Icons.water_drop, color: textColor), // Dynamic icon color
                       const SizedBox(width: 4),
+                      // Dynamic Humidity - wrapped in GetBuilder for updates
                       Text(
                         'Humidity: ${weather.humidity.toStringAsFixed(0)}%',
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: textColor), // Dynamic text color
                       ),
                     ],
                   ),
                   Row(
                     children: [
-                      const Icon(Icons.air, color: Colors.white),
+                      Icon(Icons.air, color: textColor), // Dynamic icon color
                       const SizedBox(width: 4),
+                      // Dynamic Wind Speed - wrapped in GetBuilder for updates
                       Text(
                         'Wind: ${weather.windSpeed.toStringAsFixed(1)} m/s',
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: textColor), // Dynamic text color
                       ),
                     ],
                   ),

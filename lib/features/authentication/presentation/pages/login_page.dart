@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:animate_do/animate_do.dart'; // Add animation import
+import 'package:animate_do/animate_do.dart';
 import '../../../../routes/app_routes.dart';
 import '../../controller/login_controller.dart';
-import '../../../../core/theme/app_colors.dart'; // Make sure this path is correct
+import '../../../../core/theme/app_colors.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
       builder: (controller) {
         return Scaffold(
           resizeToAvoidBottomInset: true,
-          backgroundColor: AppColors.getBackground(context), // Get background color
+          backgroundColor: AppColors.getBackground(context),
           body: controller.loading.value
               ? const Center(child: CircularProgressIndicator())
               : SafeArea(
@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Background
+                  // Background Image Area
                   SizedBox(
                     height: 400,
                     child: Stack(
@@ -43,14 +43,11 @@ class _LoginPageState extends State<LoginPage> {
                           top: -40,
                           height: 400,
                           width: width,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage(
-                                    'assets/images/background.png'),
-                                fit: BoxFit.fill,
-                              ),
-                            ),
+                          child: Image.asset(
+                            Theme.of(context).brightness == Brightness.dark
+                                ? 'assets/images/background_dark.png'
+                                : 'assets/images/background.png',
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ],
@@ -69,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             "Login",
                             style: TextStyle(
-                              color: AppColors.getPrimary(context), // Use dynamic color
+                              color: AppColors.getPrimary(context),
                               fontWeight: FontWeight.bold,
                               fontSize: 30,
                             ),
@@ -83,13 +80,13 @@ class _LoginPageState extends State<LoginPage> {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: AppColors.getCardColor(context), // Use dynamic color
+                              color: AppColors.getCardColor(context),
                               border: Border.all(
                                 color: AppColors.getPrimary(context).withOpacity(.2),
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.getAccent(context).withOpacity(.2), // Use dynamic color
+                                  color: AppColors.getAccent(context).withOpacity(.2),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -114,14 +111,15 @@ class _LoginPageState extends State<LoginPage> {
                                         border: InputBorder.none,
                                         hintText: "Email",
                                         hintStyle: TextStyle(
-                                          color: AppColors.getTextSecondary(context), // Use dynamic color
+                                          color: AppColors.getTextSecondary(context),
                                         ),
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Email address is required';
                                         }
-                                        if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                        if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                            .hasMatch(value)) {
                                           return 'Enter a valid email address';
                                         }
                                         return null;
@@ -139,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                                         border: InputBorder.none,
                                         hintText: "Password",
                                         hintStyle: TextStyle(
-                                          color: AppColors.getTextSecondary(context), // Use dynamic color
+                                          color: AppColors.getTextSecondary(context),
                                         ),
                                       ),
                                       validator: (value) {
@@ -155,7 +153,6 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 10),
 
                         // Forgot Password
@@ -184,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                               child: Text(
                                 "Forgot Password?",
                                 style: TextStyle(
-                                  color: AppColors.getSecondary(context), // Use dynamic color
+                                  color: AppColors.getSecondary(context),
                                 ),
                               ),
                             ),
@@ -200,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
                                 controller.loginWithEmail();
                               }
                             },
-                            color: AppColors.getPrimary(context), // Use dynamic color
+                            color: AppColors.getPrimary(context),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50),
                             ),
@@ -224,13 +221,12 @@ class _LoginPageState extends State<LoginPage> {
                               child: Text(
                                 "New User? Create Account",
                                 style: TextStyle(
-                                  color: AppColors.getTextPrimary(context).withOpacity(0.7), // Use dynamic color
+                                  color: AppColors.getTextPrimary(context).withOpacity(0.7),
                                 ),
                               ),
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 10),
                       ],
                     ),
@@ -240,8 +236,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         );
-
-
       },
     );
   }
