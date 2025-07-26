@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart'; // centralized colors
 
 class AppTheme {
-  AppTheme._(); // prevent instantiation
+  AppTheme._();
 
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-    scaffoldBackgroundColor: const Color(0xFFF7F7FB),
-    cardTheme: const CardThemeData(
+    colorScheme: ColorScheme.fromSeed(seedColor: AppColors.lightPrimary),
+    scaffoldBackgroundColor: AppColors.lightBackground,
+    cardTheme: CardThemeData( // Use CardThemeData
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
@@ -25,11 +26,11 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: Colors.indigo,
+      seedColor: AppColors.darkPrimary, // Use the correct darkPrimary here
       brightness: Brightness.dark,
     ),
-    scaffoldBackgroundColor: const Color(0xFF0F0F12),
-    cardTheme: const CardThemeData(
+    scaffoldBackgroundColor: AppColors.darkBackground,
+    cardTheme: CardThemeData( // Use CardThemeData
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
