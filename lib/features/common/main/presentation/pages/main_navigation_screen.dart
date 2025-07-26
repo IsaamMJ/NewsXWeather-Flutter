@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../../../../home/presentation/pages/home_screen.dart';
 import '../../../../settings/presentation/pages/settings_screen.dart';
+import 'home_screen.dart';
 // import 'home_screen_binding.dart'; // Commented out for now
 // import 'profile_screen_binding.dart'; // Commented out for now
 // import 'settings_screen_binding.dart'; // Commented out for now

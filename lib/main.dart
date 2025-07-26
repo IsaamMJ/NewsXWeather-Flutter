@@ -16,18 +16,23 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(prefs, permanent: true);
 
-  runApp(const SkyFeed());
+  // Check if the user is logged in
+  final String? userId = prefs.getString('userId'); // Store user ID when logged in
+
+  runApp(SkyFeed(initialRoute: userId != null ? AppRoutes.mainNavigation : AppRoutes.login));
 }
 
 class SkyFeed extends StatelessWidget {
-  const SkyFeed({super.key});
+  final String initialRoute;
+
+  const SkyFeed({Key? key, required this.initialRoute}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'SkyFeed',
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.login,
+      initialRoute: initialRoute, // Navigate based on the user login state
       getPages: AppPages.pages,
     );
   }

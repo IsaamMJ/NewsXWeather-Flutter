@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import '../../controllers/weather_controller.dart';
-import '../../data/repositories/weather_repository_impl.dart';
-import '../../domain/usecases/get_weather_usecase.dart';
-import '../widgets/weather_widget.dart';
+import '../../../../weather/controllers/weather_controller.dart';
+import '../../../../weather/data/repositories/weather_repository_impl.dart';
+import '../../../../weather/domain/usecases/get_weather_usecase.dart';
+import '../../../../weather/presentation/widgets/weather_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
