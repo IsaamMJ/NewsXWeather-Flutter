@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../routes/app_routes.dart';
+import '../../settings/presentation/widget/onboarding_dialog.dart';
 
 class SignUpController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -30,11 +30,20 @@ class SignUpController extends GetxController {
 
       final user = _auth.currentUser;
       if (user != null) {
-        // Save user data to SharedPreferences
+        // Save user ID
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString('userId', user.uid); // Store user ID
+        await prefs.setString('userId', user.uid);
 
-        Get.offNamed(AppRoutes.mainNavigation);  // Navigate to the main screen
+        // Show onboarding dialog
+        final completed = await Get.dialog<bool>(
+          const OnboardingDialog(),
+          barrierDismissible: false,
+        );
+
+        // Navigate only if onboarding is completed
+        if (completed == true) {
+          Get.offAllNamed(AppRoutes.mainNavigation);
+        }
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to create account: $e');

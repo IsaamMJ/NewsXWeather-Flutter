@@ -78,10 +78,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Get.changeThemeMode(isDark ? ThemeMode.dark : ThemeMode.light);
   }
 
+  // Future<void> _logout() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.remove('userId');
+  //   await FirebaseAuth.instance.signOut();
+  //   if (mounted) {
+  //     Navigator.of(context).pushReplacementNamed('/login');
+  //   }
+  // }
+
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userId');
+
+    // Clear all stored keys (userId, name, preferences, etc.)
+    await prefs.clear();
+
+    // Sign out from Firebase
     await FirebaseAuth.instance.signOut();
+
     if (mounted) {
       Navigator.of(context).pushReplacementNamed('/login');
     }
