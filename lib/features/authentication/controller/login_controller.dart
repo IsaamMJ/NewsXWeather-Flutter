@@ -1,18 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../../routes/app_routes.dart'; // Firebase Auth
+import '../../../routes/app_routes.dart';
 
 class LoginController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
   final RxBool loading = false.obs;
-
-  LoginController();
 
   // Login with Email and Password
   Future<void> loginWithEmail() async {
@@ -35,9 +31,12 @@ class LoginController extends GetxController {
 
       final User? user = userCredential.user;
       if (user != null) {
+        // Store user data in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('userId', user.uid); // Save user ID
+
         Get.snackbar('Login Success', 'Welcome ${user.email}');
-        Get.offNamed(AppRoutes.mainNavigation);
-        // Optionally navigate to another page after login
+        Get.offNamed(AppRoutes.mainNavigation); // Navigate to main screen
       } else {
         Get.snackbar('Login Failed', 'Invalid email or password.');
       }

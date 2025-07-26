@@ -6,8 +6,8 @@ import '../features/authentication/presentation/bindings/login_binding.dart';
 import '../features/authentication/presentation/bindings/signup_binding.dart';
 import '../features/common/main/presentation/pages/main_navigation_screen.dart';
 import '../features/common/splash/presentation/pages/splash_page.dart';
-import '../../features/home/presentation/pages/home_screen.dart'; // Import the Home screen
 import '../../features/settings/presentation/pages/settings_screen.dart'; // Import the Settings screen
+import '../features/common/main/presentation/pages/home_screen.dart';
 import '../routes/app_routes.dart';
 
 class AppPages {
