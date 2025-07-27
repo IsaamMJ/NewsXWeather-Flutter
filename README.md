@@ -38,8 +38,50 @@ Shared Preferences for storing local data.
 
 Firebase for user authentication.
 
+Setup Instructions
+To run the project locally, follow these setup instructions:
+
+Clone the repository
+
+bash
+Copy
+Edit
+git clone <repository_url>
+Install dependencies
+Navigate to the project directory and install the necessary dependencies:
+
+bash
+Copy
+Edit
+flutter pub get
+Set up environment variables
+The app requires the following environment variables for the news and weather APIs.
+Create a .env file in the root of your project and add the following keys:
+
+plaintext
+Copy
+Edit
+# News API Key
+NEWS_API_KEY=e6a16922a3304e69a273461981193627
+# Weather API Key
+WEATHER_API_KEY=37a4e13e48763282e85790fd31482030
+# Base URL for News API
+BASE_URL=https://newsapi.org/v2
+Run the app
+Once you've added your API keys and set up the environment variables, you can run the app using:
+
+bash
+Copy
+Edit
+flutter run
+Demo Video
+You can view the demo video showcasing the app's UI and features here:
+https://drive.google.com/drive/folders/1f_OQuLS5uD0RJVf22GtecsUJ5iWsiFxQ?usp=drive_link
 Future Implementations
 Storing user preferences in the database for better customization and personalized experiences.
-Imporve responsive ness to diffenert screen sizes
-Imporve error handling 
-add build profiles 
+
+Improving responsiveness for different screen sizes to ensure a seamless experience across devices.
+
+Enhancing error handling to provide better user feedback and ensure stability.
+
+Adding build profiles for different environments (e.g., production, staging, development) to streamline the deployment process.
