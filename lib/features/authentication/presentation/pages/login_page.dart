@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
+import '../../../../core/theme/image_paths.dart';
 import '../../../../routes/app_routes.dart';
 import '../../controller/login_controller.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -44,8 +45,8 @@ class _LoginPageState extends State<LoginPage> {
                         width: width,
                         child: Image.asset(
                           Theme.of(context).brightness == Brightness.dark
-                              ? 'assets/images/background_dark.png'
-                              : 'assets/images/background.png',
+                              ? ImagePaths.loginBackgroundDark
+                              : ImagePaths.loginBackground,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -241,8 +242,9 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-
       );
     });
   }
 }
+
+

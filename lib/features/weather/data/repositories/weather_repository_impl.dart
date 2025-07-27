@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../domain/entities/weather.dart';
@@ -5,7 +6,7 @@ import '../../domain/repositories/weather_repository.dart';
 
 class WeatherRepositoryImpl implements WeatherRepository {
   final http.Client client;
-  final String apiKey = '37a4e13e48763282e85790fd31482030'; // Replace with your OpenWeatherMap API key
+  final String apiKey = dotenv.env['WEATHER_API_KEY']!; // Fetch from .env
 
   WeatherRepositoryImpl(this.client);
 
