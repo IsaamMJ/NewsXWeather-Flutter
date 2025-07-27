@@ -54,17 +54,18 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 // WeatherWidget should not rebuild unless necessary
-                GetBuilder<WeatherController>(
-                  builder: (_) {
-                    return const WeatherWidget(); // Display the Weather widget
-                  },
-                ),
+                Obx(() {
+                  return weatherController.isLoading.value
+                      ? const Center(child: CircularProgressIndicator())
+                      : const WeatherWidget(); // Display the Weather widget
+                }),
+
                 // NewsWidget should be able to refresh independently
-                GetBuilder<NewsController>(
-                  builder: (_) {
-                    return const NewsWidget(); // Display the News widget
-                  },
-                ),
+                Obx(() {
+                  return newsController.isLoading.value
+                      ? const Center(child: CircularProgressIndicator())
+                      : const NewsWidget(); // Display the News widget
+                }),
               ],
             ),
           ),

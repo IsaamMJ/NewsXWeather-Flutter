@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';  // Make sure to import the url_launcher package
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';  // Import InAppWebView
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../../controllers/news_controller.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/strings.dart'; // Import the centralized strings
 
 class NewsWidget extends StatelessWidget {
   const NewsWidget({Key? key}) : super(key: key);
@@ -23,7 +24,7 @@ class NewsWidget extends StatelessWidget {
       if (controller.articles.isEmpty) {
         return const Padding(
           padding: EdgeInsets.symmetric(vertical: 100),
-          child: Center(child: Text('No news available')),
+          child: Center(child: Text(Strings.noNewsAvailable)), // Use centralized string
         );
       }
 
@@ -31,16 +32,16 @@ class NewsWidget extends StatelessWidget {
       String moodCaption = '';
       switch (controller.mood.value) {
         case 'cold':
-          moodCaption = "It's chilly outside ❄️ — showing stories that match the somber mood.";
+          moodCaption = Strings.moodCaptionCold;
           break;
         case 'hot':
-          moodCaption = "The weather is heating up 🔥 — here are some intense and alerting headlines.";
+          moodCaption = Strings.moodCaptionHot;
           break;
         case 'warm':
-          moodCaption = "It's pleasantly warm 🌤 — enjoy these uplifting and cheerful news picks.";
+          moodCaption = Strings.moodCaptionWarm;
           break;
         default:
-          moodCaption = "Here’s your news curated by the weather.";
+          moodCaption = Strings.moodCaptionDefault;
       }
 
       return Column(
@@ -72,40 +73,10 @@ class NewsWidget extends StatelessWidget {
             return GestureDetector(
               onTap: () async {
                 final articleUrl = article.url;
-
-                // Debugging: Check if the URL is being received properly
-                print("Article URL: $articleUrl");
-
                 if (articleUrl.isNotEmpty) {
-                  // Debugging: Check if the URL can be launched
-                  print("Checking if the URL can be launched: $articleUrl");
-
-                  final Uri url = Uri.parse(articleUrl);
-
-                  // Try to launch the URL with url_launcher first
-                  if (await canLaunchUrl(url)) {
-                    print("Launching URL externally: $articleUrl");
-                    await launchUrl(url, mode: LaunchMode.externalApplication); // Opens in external browser
-                  } else {
-                    print("Cannot launch the URL: $articleUrl");
-
-                    // If URL can't be launched externally, use InAppWebView to open the URL inside the app
-                    Get.snackbar(
-                      'Error',
-                      'Could not open the article externally. Opening inside the app.',
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
-
-                    // Open URL inside the app using InAppWebView
-                    Get.to(() => InAppWebViewPage(url: articleUrl));
-                  }
+                  await controller.launchArticleUrl(articleUrl);
                 } else {
-                  print("URL is empty");
-                  Get.snackbar(
-                    'Error',
-                    'This article has no URL.',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
+                  Get.snackbar(Strings.error, Strings.errorNoUrl, snackPosition: SnackPosition.BOTTOM);
                 }
               },
               child: Container(
@@ -161,7 +132,7 @@ class NewsWidget extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             article.description.isEmpty
-                                ? "No description available"
+                                ? Strings.noDescriptionAvailable
                                 : article.description,
                             style: TextStyle(
                               fontSize: 14,

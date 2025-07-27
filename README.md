@@ -42,3 +42,4 @@ Future Implementations
 Storing user preferences in the database for better customization and personalized experiences.
 Imporve responsive ness to diffenert screen sizes
 Imporve error handling 
+add build profiles 

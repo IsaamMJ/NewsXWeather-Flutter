@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../settings/presentation/pages/settings_screen.dart';
 import 'home_screen.dart';
-// import 'home_screen_binding.dart'; // Commented out for now
-// import 'profile_screen_binding.dart'; // Commented out for now
-// import 'settings_screen_binding.dart'; // Commented out for now
-
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({Key? key}) : super(key: key);
 
@@ -28,16 +24,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       _selectedIndex = index;
     });
 
-    // Commented out the binding logic since it's not implemented yet
-    /*
-    if (index == 0) {
-      Get.put(HomeScreenBinding()); // Bind Home Screen controller
-    } else if (index == 1) {
-      Get.put(ProfileScreenBinding()); // Bind Profile Screen controller
-    } else if (index == 2) {
-      Get.put(SettingsScreenBinding()); // Bind Settings Screen controller
-    }
-    */
   }
 
   @override

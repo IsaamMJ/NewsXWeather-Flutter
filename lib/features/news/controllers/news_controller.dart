@@ -1,9 +1,11 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/constants/api_routes.dart';
 import '../../settings/controller/settings_controller.dart';
+import '../../weather/controllers/weather_controller.dart';
 import '../domain/entities/article.dart';
 import '../domain/usecases/get_news_usecase.dart';
-import '../../weather/controllers/weather_controller.dart';
+import '../presentation/widgets/news_widget.dart';
 
 class NewsController extends GetxController {
   final GetNewsUseCase getNewsUseCase;
@@ -22,10 +24,7 @@ class NewsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('[NewsController] Initialized');
-    // Initially fetch news
     fetchWeatherBasedNews();
-    // Listen for category updates
     ever(Get.find<SettingsController>().selectedCategories, (_) => fetchWeatherBasedNews());
   }
 
@@ -33,7 +32,7 @@ class NewsController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Get selected categories from SharedPreferences or directly from SettingsController
+      // Get selected categories from SettingsController
       final selectedCategories = Get.find<SettingsController>().selectedCategories;
 
       // Get weather info from WeatherController
@@ -42,11 +41,9 @@ class NewsController extends GetxController {
 
       // Determine mood based on temperature
       String detectedMood = _getMoodFromTemperature(temperature);
-      mood.value = detectedMood;  // Set the mood
-      print('[NewsController] Detected mood: $detectedMood');
+      mood.value = detectedMood;
 
       List<Article> allArticles = [];
-
       // Fetch articles for each category
       for (String category in selectedCategories) {
         final articles = await getNewsUseCase.call(category, 1); // Fetch articles based on category
@@ -60,8 +57,6 @@ class NewsController extends GetxController {
         return keywords.any((keyword) => content.contains(keyword));
       }).toList();
 
-      print('[NewsController] Showing ${articles.length} filtered articles');
-
     } catch (e) {
       print('[NewsController] Error: $e');
     } finally {
@@ -73,5 +68,15 @@ class NewsController extends GetxController {
     if (temp <= 15) return 'cold'; // Cold mood
     if (temp >= 30) return 'hot';  // Hot mood
     return 'warm'; // Warm mood
+  }
+
+  Future<void> launchArticleUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      Get.snackbar('Error', 'Could not open the article externally. Opening inside the app.');
+      Get.to(() => InAppWebViewPage(url: url));
+    }
   }
 }

@@ -25,6 +25,16 @@ class Strings {
   static const String emailAlreadyInUse = 'This email is already in use';
   static const String weakPasswordError = 'Password is too weak, please choose a stronger password';
 
+// News Section
+  static const String noDescriptionAvailable = 'No description available';
 
+
+  static const String noNewsAvailable = 'No news available';
+  static const String moodCaptionCold = "It's chilly outside ❄️ — showing stories that match the somber mood.";
+  static const String moodCaptionHot = "The weather is heating up 🔥 — here are some intense and alerting headlines.";
+  static const String moodCaptionWarm = "It's pleasantly warm 🌤 — enjoy these uplifting and cheerful news picks.";
+  static const String moodCaptionDefault = "Here’s your news curated by the weather.";
+  static const String errorNoUrl = 'This article has no URL.';
+  static const String errorOpeningUrl = 'Could not open the article externally. Opening inside the app.';
 
 }
