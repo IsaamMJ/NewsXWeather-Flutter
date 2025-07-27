@@ -1,19 +1,15 @@
-import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
+import '../entities/user.dart';
 
 class LoginUseCase {
   final AuthRepository repository;
 
   LoginUseCase(this.repository);
 
-  Future<User?> execute({
-    required String phone,
-    required String otp,
-  }) {
-    if (phone.isEmpty || otp.isEmpty) {
-      throw ArgumentError('Phone number and OTP are required.');
+  Future<User?> execute(String email, String password) async {
+    if (email.isEmpty || password.isEmpty) {
+      throw ArgumentError('Email and Password are required.');
     }
-
-    return repository.loginWithPhoneOtp(phone, otp);
+    return repository.loginWithEmail(email, password);
   }
 }

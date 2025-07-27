@@ -1,7 +1,7 @@
 import '../entities/user.dart';
 
 abstract class AuthRepository {
-  Future<User?> loginWithPhoneOtp(String phone, String otp);
-  Future<void> signUpWithPhone(String phone); // ✅ FIXED
-  Future<void> logout();
+  Future<void> signUpWithEmail(String email, String password);  // Updated to use email for signup
+  Future<User?> loginWithEmail(String email, String password);  // Updated to use email for login
+  Future<void> logout();  // Keep logout method for signing out
 }

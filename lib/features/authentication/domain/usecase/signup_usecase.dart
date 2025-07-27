@@ -1,4 +1,3 @@
-import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 class SignUpUseCase {
@@ -6,17 +5,10 @@ class SignUpUseCase {
 
   SignUpUseCase(this.repository);
 
-  /// Sends OTP to the provided phone number
-  Future<void> sendOtp(String phone) async {
-    await repository.signUpWithPhone(phone); // triggers OTP sending
-  }
-
-  /// Verifies OTP and signs up the user
-  Future<User?> execute({required String phone, required String otp}) async {
-    if (phone.isEmpty || otp.isEmpty) {
-      throw ArgumentError('Phone number and OTP are required.');
+  Future<void> execute(String email, String password) async {
+    if (email.isEmpty || password.isEmpty) {
+      throw ArgumentError('Email and Password are required.');
     }
-
-    return repository.loginWithPhoneOtp(phone, otp); // same as login, Supabase auto creates user
+    await repository.signUpWithEmail(email, password);
   }
 }

@@ -1,52 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
-import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/entities/user.dart';
+import '../datasource/auth_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final fb.FirebaseAuth _firebaseAuth;
+  final AuthDataSource _dataSource;
 
-  AuthRepositoryImpl(this._firebaseAuth);
-
-  String? _verificationId; // Stores verificationId for OTP validation
+  AuthRepositoryImpl(this._dataSource);
 
   @override
-  Future<void> signUpWithPhone(String phone) async {
-    await _firebaseAuth.verifyPhoneNumber(
-      phoneNumber: phone,
-      timeout: const Duration(seconds: 60),
-      verificationCompleted: (fb.PhoneAuthCredential credential) async {
-        // Optional: auto sign-in if verification completes automatically
-        try {
-          await _firebaseAuth.signInWithCredential(credential);
-        } catch (e) {
-          print('Auto-verification failed: $e');
-        }
-      },
-      verificationFailed: (fb.FirebaseAuthException e) {
-        throw Exception('Phone verification failed: ${e.message}');
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        _verificationId = verificationId;
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        _verificationId = verificationId;
-      },
-    );
+  Future<void> signUpWithEmail(String email, String password) async {
+    try {
+      await _dataSource.createUserWithEmailAndPassword(email, password);
+    } catch (e) {
+      throw Exception('Failed to create account: $e');
+    }
   }
 
   @override
-  Future<User?> loginWithPhoneOtp(String phone, String otp) async {
-    if (_verificationId == null) {
-      throw Exception('No verification ID. Please request OTP again.');
-    }
-
+  Future<User?> loginWithEmail(String email, String password) async {
     try {
-      final credential = fb.PhoneAuthProvider.credential(
-        verificationId: _verificationId!,
-        smsCode: otp,
-      );
-
-      final result = await _firebaseAuth.signInWithCredential(credential);
+      final result = await _dataSource.signInWithEmailAndPassword(email, password);
       final fbUser = result.user;
 
       if (fbUser == null) return null;
@@ -56,12 +30,12 @@ class AuthRepositoryImpl implements AuthRepository {
         phone: fbUser.phoneNumber ?? '',
       );
     } catch (e) {
-      throw Exception('OTP verification failed: $e');
+      throw Exception('Failed to login: $e');
     }
   }
 
   @override
   Future<void> logout() async {
-    await _firebaseAuth.signOut();
+    await _dataSource.signOut();
   }
 }

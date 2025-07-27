@@ -38,8 +38,8 @@ flutter:
     - assets/android/logo.png  # Ensure this exists in your project folder
     - .env
     - assets/images/background.png
-    - assets/images/s1.png
-    - assets/images/s2.png
+    - assets/images/signUpPlane.png
+    - assets/images/signUpDesign.png
     - assets/images/background_dark.png
 flutter_icons:  # <-- Moved OUTSIDE the flutter: block
   android: true
