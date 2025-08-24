@@ -1,4 +1,4 @@
-package com.example.skyfeed
+package com.pearl.skyfeed
 
 import io.flutter.embedding.android.FlutterActivity
 
