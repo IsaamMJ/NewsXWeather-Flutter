@@ -46,8 +46,8 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            // Refresh only the news, not the weather
-            await newsController.fetchWeatherBasedNews();
+            // Refresh news only (weather typically doesn't need frequent refresh)
+            await newsController.fetchNews();
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),

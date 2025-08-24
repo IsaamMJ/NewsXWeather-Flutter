@@ -28,42 +28,88 @@ class NewsWidget extends StatelessWidget {
         );
       }
 
-      // Mood caption
-      String moodCaption = '';
-      switch (controller.mood.value) {
-        case 'cold':
-          moodCaption = Strings.moodCaptionCold;
-          break;
-        case 'hot':
-          moodCaption = Strings.moodCaptionHot;
-          break;
-        case 'warm':
-          moodCaption = Strings.moodCaptionWarm;
-          break;
-        default:
-          moodCaption = Strings.moodCaptionDefault;
-      }
-
       return Column(
         children: [
-          // Mood caption
+          // Attractive news header
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.getAccent(context).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                moodCaption,
-                style: TextStyle(
-                  color: AppColors.getTextPrimary(context),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.getAccent(context).withOpacity(0.8),
+                    AppColors.getAccent(context).withOpacity(0.4),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                textAlign: TextAlign.center,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.getAccent(context).withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.newspaper,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Latest News",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Stay updated with trending stories",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "LIVE",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
