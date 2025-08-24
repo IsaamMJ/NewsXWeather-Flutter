@@ -30,6 +30,7 @@ class SettingsController extends GetxController {
   final RxList<String> selectedCategories = <String>[].obs; // Reactive list
   final RxBool isDarkMode = false.obs;
   final RxnString userId = RxnString();
+  final RxString displayName = ''.obs; // Added display name observable
 
   final Map<String, String> allCategories = const {
     'business': 'Business',
@@ -61,6 +62,10 @@ class SettingsController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
 
     userId.value = prefs.getString(SharedPrefsKeys.userId);
+
+    // Load display name
+    displayName.value = prefs.getString(SharedPrefsKeys.displayName) ?? '';
+
     temperatureUnit.value = TemperatureUnitX.fromString(
       prefs.getString(SharedPrefsKeys.temperatureUnit) ?? 'Celsius',
     );
@@ -76,9 +81,15 @@ class SettingsController extends GetxController {
       isDarkMode.value = systemBrightness == Brightness.dark;
     }
 
-
     // Apply the theme (light or dark based on the value of `isDarkMode`)
     Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
+  }
+
+  // Update display name and save to SharedPreferences
+  Future<void> updateDisplayName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SharedPrefsKeys.displayName, name.trim());
+    displayName.value = name.trim();
   }
 
   // Set the temperature unit and save it to SharedPreferences

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/storage/shared_prefs_keys.dart';
+
 class OnboardingDialog extends StatefulWidget {
   const OnboardingDialog({Key? key}) : super(key: key);
 
@@ -50,10 +52,12 @@ class _OnboardingDialogState extends State<OnboardingDialog> {
     setState(() => _saving = true);
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('displayName', _nameCtrl.text.trim());
-    await prefs.setString('temperatureUnit', _tempUnit);
-    await prefs.setStringList('newsCategories', _selectedCategories);
-    await prefs.setBool('onboarded', true);
+
+    // Using SharedPrefsKeys constants
+    await prefs.setString(SharedPrefsKeys.displayName, _nameCtrl.text.trim());
+    await prefs.setString(SharedPrefsKeys.temperatureUnit, _tempUnit);
+    await prefs.setStringList(SharedPrefsKeys.newsCategories, _selectedCategories);
+    await prefs.setBool(SharedPrefsKeys.onboarded, true);
 
     setState(() => _saving = false);
 

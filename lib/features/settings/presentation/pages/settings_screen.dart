@@ -10,6 +10,94 @@ import '../widget/temperature_toggle.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  Widget _buildPersonalizedHeader(BuildContext context, SettingsController controller) {
+    final theme = Theme.of(context);
+    final displayName = controller.displayName.value;
+    final greeting = _getGreeting();
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.primary.withOpacity(0.1),
+            theme.colorScheme.secondary.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.primary.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                ],
+              ),
+            ),
+            child: Center(
+              child: Text(
+                displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$greeting, ${displayName.isNotEmpty ? displayName : 'there'}!',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onBackground,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Customize your news experience',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onBackground.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.settings_outlined,
+            color: theme.colorScheme.primary.withOpacity(0.7),
+            size: 24,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(SettingsController());
@@ -26,13 +114,9 @@ class SettingsScreen extends StatelessWidget {
                 () => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Settings',
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 24),
+                // Personalized Header
+                _buildPersonalizedHeader(context, controller),
+                const SizedBox(height: 32),
 
                 SectionCard(
                   color: cardColor,
