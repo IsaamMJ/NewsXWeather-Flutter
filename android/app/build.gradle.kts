@@ -34,8 +34,8 @@ android {
         applicationId = "com.pearl.skyfeed"
         minSdk = 30
         targetSdk = flutter.targetSdkVersion
-        versionCode = 7
-        versionName = "build7"
+        versionCode = 9
+        versionName = "Playstorebuil9"
     }
 
     signingConfigs {
