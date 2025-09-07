@@ -32,24 +32,36 @@ class SettingsController extends GetxController {
   final RxnString userId = RxnString();
   final RxString displayName = ''.obs; // Added display name observable
 
+  Future<void> _migrateOldCategories(List<String> savedCategories) async {
+    final validCategories = allCategories.keys.toSet();
+    final filteredCategories = savedCategories.where((cat) => validCategories.contains(cat)).toList();
+
+    if (filteredCategories.length != savedCategories.length) {
+      final removedCount = savedCategories.length - filteredCategories.length;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(SharedPrefsKeys.newsCategories, filteredCategories);
+
+      // Show user-friendly notification
+      Get.snackbar(
+        'Categories Updated',
+        'We\'ve streamlined news categories for better performance. Please review your selections in Settings.',
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 4),
+      );
+    }
+
+    selectedCategories.assignAll(filteredCategories);
+  }
+
+  // In your SettingsController, update the allCategories map:
   final Map<String, String> allCategories = const {
     'business': 'Business',
-    'crime': 'Crime',
-    'domestic': 'Domestic',
-    'education': 'Education',
     'entertainment': 'Entertainment',
-    'environment': 'Environment',
-    'food': 'Food',
-    'health': 'Health',
     'lifestyle': 'Lifestyle',
-    'other': 'Other',
-    'politics': 'Politics',
+    'health': 'Health',
     'science': 'Science',
     'sports': 'Sports',
     'technology': 'Technology',
-    'top': 'Top',
-    'tourism': 'Tourism',
-    'world': 'World',
   };
 
   @override
@@ -62,18 +74,17 @@ class SettingsController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
 
     userId.value = prefs.getString(SharedPrefsKeys.userId);
-
-    // Load display name
     displayName.value = prefs.getString(SharedPrefsKeys.displayName) ?? '';
 
     temperatureUnit.value = TemperatureUnitX.fromString(
       prefs.getString(SharedPrefsKeys.temperatureUnit) ?? 'Celsius',
     );
-    selectedCategories.assignAll(
-      prefs.getStringList(SharedPrefsKeys.newsCategories) ?? [],
-    );
 
-    // Get and apply the theme preference, default to system theme if not available
+    // Handle category migration
+    final savedCategories = prefs.getStringList(SharedPrefsKeys.newsCategories) ?? [];
+    await _migrateOldCategories(savedCategories);
+
+    // Rest of your existing code...
     if (prefs.containsKey(SharedPrefsKeys.isDarkMode)) {
       isDarkMode.value = prefs.getBool(SharedPrefsKeys.isDarkMode)!;
     } else {
@@ -81,7 +92,6 @@ class SettingsController extends GetxController {
       isDarkMode.value = systemBrightness == Brightness.dark;
     }
 
-    // Apply the theme (light or dark based on the value of `isDarkMode`)
     Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
 

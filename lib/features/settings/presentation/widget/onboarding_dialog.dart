@@ -16,22 +16,12 @@ class _OnboardingDialogState extends State<OnboardingDialog> {
 
   final Map<String, String> _categories = const {
     'business': 'Business',
-    'crime': 'Crime',
-    'domestic': 'Domestic',
-    'education': 'Education',
     'entertainment': 'Entertainment',
-    'environment': 'Environment',
-    'food': 'Food',
-    'health': 'Health',
     'lifestyle': 'Lifestyle',
-    'other': 'Other',
-    'politics': 'Politics',
+    'health': 'Health',
     'science': 'Science',
     'sports': 'Sports',
     'technology': 'Technology',
-    'top': 'Top',
-    'tourism': 'Tourism',
-    'world': 'World',
   };
 
   final _formKey = GlobalKey<FormState>();
@@ -165,6 +155,12 @@ class _OnboardingDialogState extends State<OnboardingDialog> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _saving ? null : _save,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         child: _saving
                             ? const SizedBox(
                           width: 18,

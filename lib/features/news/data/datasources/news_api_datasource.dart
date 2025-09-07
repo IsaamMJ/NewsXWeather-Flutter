@@ -9,8 +9,21 @@ class NewsApiDataSource {
   NewsApiDataSource(this.apiClient, this.apiKey);
 
   Future<List<Article>> fetchNews(String category, int page) async {
+    // Map categories to NewsAPI supported categories
+    final categoryMapping = {
+      'business': 'business',
+      'entertainment': 'entertainment',
+      'lifestyle': 'entertainment', // Maps to entertainment for lifestyle content
+      'health': 'health',
+      'science': 'science',
+      'sports': 'sports',
+      'technology': 'technology',
+    };
+
+    final apiCategory = categoryMapping[category] ?? 'general';
+
     final queryParams = {
-      'category': category,
+      'category': apiCategory,
       'apiKey': apiKey,
       'page': page.toString(),
     };

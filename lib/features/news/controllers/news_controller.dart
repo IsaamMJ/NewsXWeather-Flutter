@@ -21,24 +21,34 @@ class NewsController extends GetxController {
     ever(Get.find<SettingsController>().selectedCategories, (_) => fetchNews());
   }
 
+  // In NewsController.fetchNews(), add deduplication:
   Future<void> fetchNews() async {
     try {
       isLoading.value = true;
-
-      // Get selected categories from SettingsController
       final selectedCategories = Get.find<SettingsController>().selectedCategories;
 
-      List<Article> allArticles = [];
+      // Map to API categories and deduplicate
+      final categoryMapping = {
+        'business': 'business',
+        'entertainment': 'entertainment',
+        'lifestyle': 'entertainment',
+        'health': 'health',
+        'science': 'science',
+        'sports': 'sports',
+        'technology': 'technology',
+      };
 
-      // Fetch articles for each selected category
-      for (String category in selectedCategories) {
-        final categoryArticles = await getNewsUseCase.call(category, 1);
+      final apiCategories = selectedCategories
+          .map((cat) => categoryMapping[cat] ?? 'general')
+          .toSet(); // Remove duplicates
+
+      List<Article> allArticles = [];
+      for (String apiCategory in apiCategories) {
+        final categoryArticles = await getNewsUseCase.call(apiCategory, 1);
         allArticles.addAll(categoryArticles);
       }
 
-      // Set all fetched articles
       articles.value = allArticles;
-
     } catch (e) {
       print('[NewsController] Error: $e');
     } finally {

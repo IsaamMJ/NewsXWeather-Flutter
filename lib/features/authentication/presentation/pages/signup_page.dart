@@ -7,7 +7,6 @@ import '../../../../core/theme/image_paths.dart';
 import '../../../../routes/app_routes.dart';
 import '../../controller/sign_up_controller.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/background_section.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -16,7 +15,7 @@ class SignUpPage extends StatefulWidget {
   _SignUpPageState createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
+class _SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
@@ -25,7 +24,6 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
   bool _hasAttemptedSubmit = false;
   bool _isPasswordVisible = false;
   bool _isReEnterPasswordVisible = false;
-  bool _isLoading = false;
 
   // Password strength indicators
   bool _hasMinLength = false;
@@ -34,31 +32,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
   bool _hasDigit = false;
   bool _hasSpecialChar = false;
 
-  late AnimationController _buttonAnimationController;
-  late Animation<double> _buttonScaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _buttonAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-    _buttonScaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _buttonAnimationController,
-      curve: Curves.easeInOut,
-    ));
-  }
-
   @override
   void dispose() {
     emailFocusNode.dispose();
     passwordFocusNode.dispose();
     reEnterPasswordFocusNode.dispose();
-    _buttonAnimationController.dispose();
     super.dispose();
   }
 
@@ -88,13 +66,13 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.getCardColor(context),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppColors.getSecondary(context).withOpacity(0.2),
+          color: AppColors.getPrimary(context).withOpacity(0.2),
         ),
       ),
       child: Column(
@@ -149,6 +127,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
     required FocusNode focusNode,
     FocusNode? nextFocusNode,
     required String hintText,
+    required String label,
     required IconData icon,
     required String? Function(String?) validator,
     bool obscureText = false,
@@ -157,253 +136,270 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
     bool isPasswordVisible = false,
     VoidCallback? onVisibilityToggle,
     Function(String)? onChanged,
+    TextInputType? keyboardType,
   }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: focusNode.hasFocus
-                ? AppColors.getPrimary(context)
-                : Colors.transparent,
-            width: 1,
-          ),
-        ),
-        child: TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          obscureText: obscureText && !isPasswordVisible,
-          autovalidateMode: _hasAttemptedSubmit
-              ? AutovalidateMode.onUserInteraction
-              : AutovalidateMode.disabled,
-          validator: validator,
-          onChanged: onChanged,
-          onFieldSubmitted: (value) {
-            if (nextFocusNode != null) {
-              FocusScope.of(context).requestFocus(nextFocusNode);
-            } else if (isLast) {
-              _handleSignUp();
-            }
-          },
-          textInputAction: isLast ? TextInputAction.done : TextInputAction.next,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
           style: TextStyle(
             color: AppColors.getPrimary(context),
-            fontSize: 16,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color: AppColors.getPrimary(context).withOpacity(0.5),
+        ),
+        const SizedBox(height: 8),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: focusNode.hasFocus
+                  ? AppColors.getPrimary(context)
+                  : AppColors.getPrimary(context).withOpacity(0.2),
+              width: 1.5,
+            ),
+            color: AppColors.getCardColor(context),
+          ),
+          child: TextFormField(
+            controller: controller,
+            focusNode: focusNode,
+            obscureText: obscureText && !isPasswordVisible,
+            keyboardType: keyboardType,
+            autovalidateMode: _hasAttemptedSubmit
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
+            validator: validator,
+            onChanged: onChanged,
+            onFieldSubmitted: (value) {
+              if (nextFocusNode != null) {
+                FocusScope.of(context).requestFocus(nextFocusNode);
+              } else if (isLast) {
+                _handleSignUp();
+              }
+            },
+            textInputAction: isLast ? TextInputAction.done : TextInputAction.next,
+            style: TextStyle(
+              color: AppColors.getPrimary(context),
               fontSize: 16,
             ),
-            prefixIcon: Container(
-              width: 50,
-              height: 50,
-              alignment: Alignment.center,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+            decoration: InputDecoration(
+              hintText: hintText,
+              hintStyle: TextStyle(
+                color: AppColors.getPrimary(context).withOpacity(0.5),
+                fontSize: 16,
+              ),
+              prefixIcon: Container(
+                width: 48,
+                height: 48,
+                alignment: Alignment.center,
                 child: Icon(
                   icon,
                   color: focusNode.hasFocus
                       ? AppColors.getPrimary(context)
-                      : AppColors.getPrimary(context).withOpacity(0.7),
+                      : AppColors.getPrimary(context).withOpacity(0.6),
                   size: 20,
                 ),
               ),
-            ),
-            suffixIcon: isPassword
-                ? IconButton(
-              icon: Icon(
-                isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                color: AppColors.getPrimary(context).withOpacity(0.7),
-                size: 20,
+              suffixIcon: isPassword
+                  ? IconButton(
+                icon: Icon(
+                  isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                  color: AppColors.getPrimary(context).withOpacity(0.6),
+                  size: 20,
+                ),
+                onPressed: onVisibilityToggle,
+              )
+                  : null,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
               ),
-              onPressed: onVisibilityToggle,
-            )
-                : null,
-            prefixIconConstraints: const BoxConstraints(
-              minWidth: 50,
-              maxWidth: 50,
+              errorStyle: const TextStyle(
+                fontSize: 12,
+                height: 1.2,
+              ),
             ),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(vertical: 16),
-            errorStyle: const TextStyle(
-              fontSize: 12,
-              height: 1.2,
-            ),
-            errorMaxLines: 3,
           ),
         ),
-      ),
+      ],
     );
   }
 
   void _handleSignUp() async {
     setState(() {
       _hasAttemptedSubmit = true;
-      _isLoading = true;
-    });
-
-    _buttonAnimationController.forward().then((_) {
-      _buttonAnimationController.reverse();
     });
 
     final isValid = formKey.currentState?.validate() ?? false;
     if (!isValid) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Haptic feedback for error
-      // HapticFeedback.lightImpact(); // Uncomment if you want haptic feedback
-
-      // Show a helpful message
-      Get.snackbar(
-        'Please check your inputs',
-        'Make sure all fields are filled correctly',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.orange.withOpacity(0.9),
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 8,
-        duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.warning, color: Colors.white),
-      );
+      // Focus on first invalid field
+      if (emailFocusNode.canRequestFocus) {
+        FocusScope.of(context).requestFocus(emailFocusNode);
+      }
       return;
     }
 
-    try {
-      final SignUpController controller = Get.find();
-      await controller.signUpWithEmail();
-
-      // Success feedback
-      Get.snackbar(
-        'Account Created!',
-        'Welcome! Your account has been successfully created.',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.green.withOpacity(0.9),
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 8,
-        duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.check_circle, color: Colors.white),
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Something went wrong. Please try again.',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red.withOpacity(0.9),
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 8,
-        duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.error, color: Colors.white),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    final SignUpController controller = Get.find();
+    await controller.signUpWithEmail();
   }
 
   @override
   Widget build(BuildContext context) {
-    final SignUpController controller = Get.find();
-    final primaryColor = AppColors.getPrimary(context);
-    final lightPurpleColor = AppColors.getSecondary(context);
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: AppColors.getBackground(context),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Background Section
-              BackgroundSection(),
+    // Smaller, more subtle background
+    final backgroundHeight = (height * 0.25).clamp(180.0, 250.0);
 
-              // Form Area
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    // Title
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 1500),
-                      child: Text(
-                        Strings.signUpTitle,
-                        style: TextStyle(
-                          color: primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 28,
+    return Obx(() {
+      final controller = Get.find<SignUpController>();
+      return Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: AppColors.getBackground(context),
+        body: controller.isLoading.value
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+          children: [
+            // Background Header
+            Container(
+              height: backgroundHeight,
+              width: width,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                      child: Transform.translate(
+                        offset: const Offset(0, 40), // Reduced offset
+                        child: Transform.scale(
+                          scale: 1.1, // Slightly scale up to fill edges
+                          child: Image.asset(
+                            Theme.of(context).brightness == Brightness.dark
+                                ? ImagePaths.signUpBackground1
+                                : ImagePaths.signUpBackground2,
+                            fit: BoxFit.cover,
+                            opacity: const AlwaysStoppedAnimation(0.5),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-
-                    // Form Box
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 1700),
-                      child: Form(
-                        key: formKey,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: AppColors.getCardColor(context),
-                            border: Border.all(
-                                color: lightPurpleColor.withOpacity(.2)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: lightPurpleColor.withOpacity(.15),
-                                blurRadius: 25,
-                                offset: const Offset(0, 15),
-                              )
-                            ],
+                  ),
+                  // Welcome overlay
+                  Positioned(
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
+                    child: FadeInUp(
+                      duration: const Duration(milliseconds: 500),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Create Account",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  offset: const Offset(0, 1),
+                                  blurRadius: 3,
+                                  color: Colors.black.withOpacity(0.3),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Join us today and start your journey",
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                              shadows: [
+                                Shadow(
+                                  offset: const Offset(0, 1),
+                                  blurRadius: 3,
+                                  color: Colors.black.withOpacity(0.3),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Main Content - Scrollable
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  left: 24,
+                  right: 24,
+                  top: 20,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 50,
+                ),
+                child: Column(
+                  children: [
+                    // SignUp Form
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 700),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: AppColors.getCardColor(context),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.getPrimary(context).withOpacity(0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Form(
+                          key: formKey,
                           child: Column(
-                            children: <Widget>[
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
                               // Email Field
                               _buildFormField(
                                 controller: controller.emailController,
                                 focusNode: emailFocusNode,
                                 nextFocusNode: passwordFocusNode,
-                                hintText: Strings.emailHint,
+                                label: "Email Address",
+                                hintText: "Enter your email",
                                 icon: Icons.email_outlined,
+                                keyboardType: TextInputType.emailAddress,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return Strings.emailRequired;
+                                    return 'Please enter your email address';
                                   }
-                                  if (!RegexPatterns.emailRegex.hasMatch(value)) {
-                                    return Strings.invalidEmail;
+                                  if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                      .hasMatch(value)) {
+                                    return 'Please enter a valid email address';
                                   }
                                   return null;
                                 },
                               ),
 
-                              // Divider
-                              Divider(
-                                height: 1,
-                                color: lightPurpleColor.withOpacity(.15),
-                                indent: 16,
-                                endIndent: 16,
-                              ),
+                              const SizedBox(height: 20),
 
                               // Password Field
                               _buildFormField(
                                 controller: controller.passwordController,
                                 focusNode: passwordFocusNode,
                                 nextFocusNode: reEnterPasswordFocusNode,
-                                hintText: Strings.passwordHint,
+                                label: "Password",
+                                hintText: "Enter your password",
                                 icon: Icons.lock_outlined,
                                 obscureText: true,
                                 isPassword: true,
@@ -416,28 +412,30 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                 onChanged: _checkPasswordStrength,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return Strings.passwordRequired;
+                                    return 'Please enter your password';
                                   }
-                                  if (!RegexPatterns.passwordRegex.hasMatch(value)) {
-                                    return Strings.passwordStrength;
+                                  if (value.length < 8) {
+                                    return 'Password must be at least 8 characters';
+                                  }
+                                  if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$')
+                                      .hasMatch(value)) {
+                                    return 'Password must contain uppercase, lowercase, number and special character';
                                   }
                                   return null;
                                 },
                               ),
 
-                              // Divider
-                              Divider(
-                                height: 1,
-                                color: lightPurpleColor.withOpacity(.15),
-                                indent: 16,
-                                endIndent: 16,
-                              ),
+                              // Password Strength Indicator
+                              _buildPasswordStrengthIndicator(),
 
-                              // Re-enter Password Field
+                              const SizedBox(height: 20),
+
+                              // Confirm Password Field
                               _buildFormField(
                                 controller: controller.reEnterPasswordController,
                                 focusNode: reEnterPasswordFocusNode,
-                                hintText: Strings.reEnterPasswordHint,
+                                label: "Confirm Password",
+                                hintText: "Re-enter your password",
                                 icon: Icons.lock_outline,
                                 obscureText: true,
                                 isPassword: true,
@@ -450,13 +448,37 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                 },
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return Strings.passwordRequired;
+                                    return 'Please confirm your password';
                                   }
                                   if (value != controller.passwordController.text) {
-                                    return Strings.passwordMismatch;
+                                    return 'Passwords do not match';
                                   }
                                   return null;
                                 },
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // SignUp Button
+                              ElevatedButton(
+                                onPressed: _handleSignUp,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.getPrimary(context),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
+                                  shadowColor: AppColors.getPrimary(context).withOpacity(0.3),
+                                ),
+                                child: const Text(
+                                  "Create Account",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -464,92 +486,47 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                       ),
                     ),
 
-                    // Password Strength Indicator
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 1800),
-                      child: _buildPasswordStrengthIndicator(),
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    // Sign Up Button
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 1900),
-                      child: AnimatedBuilder(
-                        animation: _buttonScaleAnimation,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: _buttonScaleAnimation.value,
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: _isLoading ? null : _handleSignUp,
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  backgroundColor: primaryColor,
-                                  elevation: _isLoading ? 0 : 4,
-                                  shadowColor: primaryColor.withOpacity(0.3),
-                                ),
-                                child: _isLoading
-                                    ? SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                                    : const Text(
-                                  Strings.signUpButtonText,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 40),
 
                     // Login Link
                     FadeInUp(
-                      duration: const Duration(milliseconds: 2000),
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: () => Get.offNamed(AppRoutes.login, preventDuplicates: false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: Text(
-                              Strings.alreadyUserText,
+                      duration: const Duration(milliseconds: 900),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Already have an account? ",
                               style: TextStyle(
-                                color: primaryColor.withOpacity(0.8),
-                                fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.underline,
-                                decorationColor: primaryColor.withOpacity(0.8),
+                                color: AppColors.getPrimary(context).withOpacity(0.6),
+                                fontSize: 14,
                               ),
                             ),
-                          ),
+                            GestureDetector(
+                              onTap: () => Get.offNamed(AppRoutes.login),
+                              child: Text(
+                                "Sign In",
+                                style: TextStyle(
+                                  color: AppColors.getSecondary(context),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColors.getSecondary(context),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
-    );
+      );
+    });
   }
 }
