@@ -1,0 +1,44 @@
+To upload your app update to Google Play Store:
+
+## Steps to Upload New Version:
+
+1. *Build your updated APK/AAB*
+   - Update your version code and version name in pubspec.yaml
+   - Run flutter build appbundle --release (for AAB) or flutter build apk --release
+
+2. *Go to Google Play Console*
+   - Sign in to your developer account
+   - Select your app (SkyFeed)
+
+3. *Create new release*
+   - Go to "Production" (or "Testing" if you want to test first)
+   - Click "Create new release"
+
+4. *Upload your build*
+   - Upload the new AAB/APK file
+   - Google will analyze it and show any issues
+
+5. *Update release details*
+   - Add release notes describing your changes:
+
+   - Streamlined news categories for better performance
+   - Improved user interface and experience
+   - Bug fixes and optimizations
+
+
+6. *Review and rollout*
+   - Review all details
+   - Click "Start rollout to production"
+
+## Important Notes:
+
+- *Version increment*: Make sure you increased version: 1.0.1+2 in pubspec.yaml (both version name and build number)
+- *Testing*: Consider using "Internal testing" or "Closed testing" first
+- *Review time*: Updates typically take 1-3 days to be reviewed
+- *Staged rollout*: You can release to a percentage of users first (e.g., 20%) then gradually increase
+
+## Don't forget:
+- Update the store listing description we just wrote
+- Both can be done in the same submission
+
+The app update with your category changes and the description update can be submitted together.
