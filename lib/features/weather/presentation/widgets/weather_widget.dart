@@ -3,9 +3,20 @@ import 'package:get/get.dart';
 import '../../../../core/theme/app_colors.dart'; // Import your AppColors for styling
 import '../../controllers/weather_controller.dart';
 import 'forecast_widget.dart';
+import 'location_change_dialog.dart'; // Import the new dialog
 
 class WeatherWidget extends StatelessWidget {
   const WeatherWidget({Key? key}) : super(key: key);
+
+  void _showLocationChangeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return const LocationChangeDialog();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +59,8 @@ class WeatherWidget extends StatelessWidget {
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.getCardColor(context).withOpacity(0.9), // Dynamic card color based on theme
+            color: AppColors.getCardColor(context).withOpacity(0.9),
+            // Dynamic card color based on theme
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -69,18 +81,57 @@ class WeatherWidget extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Static City Name (No rebuild needed)
-                        Text(
-                          weather.city,
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: textColor, // Dynamic text color
-                            fontWeight: FontWeight.bold,
-                          ),
+                        // City Name with Location Change Button
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                weather.city,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  color: textColor, // Dynamic text color
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Location Change Button
+                            GestureDetector(
+                              onTap: () => _showLocationChangeDialog(context),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: AppColors
+                                      .getAccent(context)
+                                      .withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.edit_location_alt,
+                                  size: 20,
+                                  color: AppColors.getAccent(context),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 4),
+                        // Location Type Indicator (Optional - for debugging/info)
+                        if (controller.isUsingManualLocation)
+                          Text(
+                            'Custom Location',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.getTextSecondary(context),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        const SizedBox(height: 8),
                         // Dynamic Temperature - wrapped in GetBuilder for updates
                         Text(
-                          '${displayTemp.toStringAsFixed(1)}°${temperatureUnit == 'Celsius' ? 'C' : 'F'}',
+                          '${displayTemp.toStringAsFixed(
+                              1)}°${temperatureUnit == 'Celsius' ? 'C' : 'F'}',
                           style: TextStyle(
                             fontSize: 48,
                             color: textColor, // Dynamic text color
@@ -98,7 +149,8 @@ class WeatherWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(Icons.wb_cloudy_rounded, size: 48, color: textColor), // Dynamic icon color
+                  Icon(Icons.wb_cloudy_rounded, size: 48, color: textColor),
+                  // Dynamic icon color
                 ],
               ),
               const SizedBox(height: 16),
@@ -109,12 +161,14 @@ class WeatherWidget extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.water_drop, color: textColor), // Dynamic icon color
+                      Icon(Icons.water_drop, color: textColor),
+                      // Dynamic icon color
                       const SizedBox(width: 4),
                       // Dynamic Humidity - wrapped in GetBuilder for updates
                       Text(
                         'Humidity: ${weather.humidity.toStringAsFixed(0)}%',
-                        style: TextStyle(color: textColor), // Dynamic text color
+                        style: TextStyle(
+                            color: textColor), // Dynamic text color
                       ),
                     ],
                   ),
@@ -125,7 +179,8 @@ class WeatherWidget extends StatelessWidget {
                       // Dynamic Wind Speed - wrapped in GetBuilder for updates
                       Text(
                         'Wind: ${weather.windSpeed.toStringAsFixed(1)} m/s',
-                        style: TextStyle(color: textColor), // Dynamic text color
+                        style: TextStyle(
+                            color: textColor), // Dynamic text color
                       ),
                     ],
                   ),

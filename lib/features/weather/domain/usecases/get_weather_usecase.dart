@@ -1,5 +1,6 @@
 import '../repositories/weather_repository.dart';
 import '../entities/weather.dart';
+import '../entities/location_suggestion.dart';
 
 class GetWeatherUseCase {
   final WeatherRepository repository;
@@ -14,5 +15,10 @@ class GetWeatherUseCase {
   // Call with Latitude and Longitude
   Future<Weather> fetchWeatherByLocation(double lat, double lon) async {
     return await repository.fetchWeatherByLocation(lat, lon);
+  }
+
+  // NEW: Search for location suggestions
+  Future<List<LocationSuggestion>> searchLocations(String query) async {
+    return await repository.searchLocations(query);
   }
 }

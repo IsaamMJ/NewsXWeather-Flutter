@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../domain/entities/weather.dart';
+import '../../domain/entities/location_suggestion.dart';
 import '../../domain/repositories/weather_repository.dart';
 
 class WeatherRepositoryImpl implements WeatherRepository {
@@ -55,6 +56,27 @@ class WeatherRepositoryImpl implements WeatherRepository {
       }
     } catch (e) {
       throw Exception('Failed to load weather data: $e');
+    }
+  }
+
+  @override
+  Future<List<LocationSuggestion>> searchLocations(String query) async {
+    // Limit results to 5 for better UX and API usage
+    final url = Uri.parse(
+        'http://api.openweathermap.org/geo/1.0/direct?q=${Uri.encodeComponent(query)}&limit=5&appid=$apiKey');
+
+    try {
+      final response = await client.get(url).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        return data.map((json) => LocationSuggestion.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to search locations');
+      }
+    } catch (e) {
+      throw Exception('Failed to search locations: $e');
     }
   }
 
