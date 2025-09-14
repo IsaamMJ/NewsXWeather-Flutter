@@ -6,7 +6,8 @@ import '../features/authentication/presentation/bindings/login_binding.dart';
 import '../features/authentication/presentation/bindings/signup_binding.dart';
 import '../features/common/main/presentation/pages/home_screen.dart';
 import '../features/common/main/presentation/pages/main_navigation_screen.dart';
-import '../../features/settings/presentation/pages/settings_screen.dart'; // Import the Settings screen
+import '../../features/settings/presentation/pages/settings_screen.dart';
+import '../../features/feedback/presentation/pages/feedback_screen.dart'; // Import Feedback screen
 import '../routes/app_routes.dart';
 
 class AppPages {
@@ -37,6 +38,11 @@ class AppPages {
       name: AppRoutes.settings,
       page: () => const SettingsScreen(),
       // binding: SettingsBinding(),
+    ),
+    // Add Feedback screen
+    GetPage(
+      name: AppRoutes.feedback,
+      page: () => const FeedbackScreen(),
     ),
   ];
 }

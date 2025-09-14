@@ -9,4 +9,5 @@ abstract class AppRoutes {
   static const mainNavigation = '/mainNavigation';  // Main Navigation screen route
 
   static const settings = '/settings';    // Settings screen route
+  static const feedback = '/feedback';    // Feedback screen route
 }

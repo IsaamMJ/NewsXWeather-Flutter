@@ -307,36 +307,120 @@ class RssNewsDataSource {
         .trim();
   }
 
+  // FIXED: Enhanced date parsing with better timezone and format handling
   String _formatDate(String dateString) {
     if (dateString.isEmpty) {
       return DateTime.now().toIso8601String();
     }
 
+    print('[DEBUG] Raw RSS date: $dateString');
+
     try {
-      // Try ISO format first
-      final date = DateTime.parse(dateString);
-      return date.toIso8601String();
-    } catch (e) {
+      DateTime parsedDate;
+
+      // Try parsing as ISO format first
       try {
-        // Handle RFC 2822 format (common in RSS)
-        final cleanedDate = dateString.replaceAll(RegExp(r'\s+'), ' ').trim();
-        final parts = cleanedDate.split(' ');
-
-        if (parts.length >= 4) {
-          final day = int.tryParse(parts[1]) ?? 1;
-          final month = _getMonthNumber(parts[2]);
-          final year = int.tryParse(parts[3]) ?? DateTime.now().year;
-
-          final date = DateTime(year, month, day);
-          return date.toIso8601String();
-        }
-      } catch (e2) {
-        print('[RssNewsDataSource] Date parsing error for "$dateString": $e2');
+        parsedDate = DateTime.parse(dateString);
+        print('[DEBUG] Parsed as ISO: $parsedDate');
+      } catch (e) {
+        // Handle RFC 2822 format (common in RSS feeds)
+        parsedDate = _parseRfc2822Date(dateString);
+        print('[DEBUG] Parsed as RFC2822: $parsedDate');
       }
 
+      // Convert to UTC to ensure consistent timezone handling
+      final utcDate = parsedDate.toUtc();
+      final isoString = utcDate.toIso8601String();
+
+      // Calculate actual time difference for verification
+      final now = DateTime.now().toUtc();
+      final difference = now.difference(utcDate);
+      print('[DEBUG] Final date: $isoString, Hours ago: ${difference.inHours}');
+
+      return isoString;
+
+    } catch (e) {
+      print('[RssNewsDataSource] Date parsing error for "$dateString": $e');
       // Fallback to current time
-      return DateTime.now().toIso8601String();
+      return DateTime.now().toUtc().toIso8601String();
     }
+  }
+
+  DateTime _parseRfc2822Date(String dateString) {
+    // Clean up the date string
+    final cleanedDate = dateString.replaceAll(RegExp(r'\s+'), ' ').trim();
+    final parts = cleanedDate.split(' ');
+
+    if (parts.length < 4) {
+      throw FormatException('Invalid RFC2822 date format: $dateString');
+    }
+
+    // Handle different RFC2822 formats:
+    // "Wed, 15 Jan 2025 10:30:00 GMT" or "15 Jan 2025 10:30:00 +0000"
+    int dayIndex = 1;
+    int monthIndex = 2;
+    int yearIndex = 3;
+    int timeIndex = 4;
+    int timezoneIndex = 5;
+
+    // Skip weekday if present
+    if (parts[0].contains(',')) {
+      // Format: "Wed, 15 Jan 2025 10:30:00 GMT"
+      dayIndex = 1;
+      monthIndex = 2;
+      yearIndex = 3;
+      timeIndex = 4;
+      timezoneIndex = 5;
+    } else if (int.tryParse(parts[0]) != null) {
+      // Format: "15 Jan 2025 10:30:00 +0000"
+      dayIndex = 0;
+      monthIndex = 1;
+      yearIndex = 2;
+      timeIndex = 3;
+      timezoneIndex = 4;
+    }
+
+    final day = int.tryParse(parts[dayIndex]) ?? 1;
+    final month = _getMonthNumber(parts[monthIndex]);
+    final year = int.tryParse(parts[yearIndex]) ?? DateTime.now().year;
+
+    // Parse time if available
+    int hour = 0, minute = 0, second = 0;
+    if (parts.length > timeIndex && parts[timeIndex].contains(':')) {
+      final timeParts = parts[timeIndex].split(':');
+      hour = int.tryParse(timeParts[0]) ?? 0;
+      minute = int.tryParse(timeParts[1]) ?? 0;
+      if (timeParts.length > 2) {
+        second = int.tryParse(timeParts[2]) ?? 0;
+      }
+    }
+
+    // Create the base datetime in UTC
+    final baseDate = DateTime.utc(year, month, day, hour, minute, second);
+
+    // Handle timezone offset if present
+    if (parts.length > timezoneIndex) {
+      final timezone = parts[timezoneIndex];
+      if (timezone.startsWith('+') || timezone.startsWith('-')) {
+        // Parse timezone offset like "+0530" or "-0800"
+        final isNegative = timezone.startsWith('-');
+        final offsetStr = timezone.substring(1);
+
+        if (offsetStr.length >= 4) {
+          final offsetHours = int.tryParse(offsetStr.substring(0, 2)) ?? 0;
+          final offsetMinutes = int.tryParse(offsetStr.substring(2, 4)) ?? 0;
+          final totalOffsetMinutes = (offsetHours * 60 + offsetMinutes) * (isNegative ? -1 : 1);
+
+          // Convert to UTC by subtracting the offset
+          return baseDate.subtract(Duration(minutes: totalOffsetMinutes));
+        }
+      } else if (timezone == 'GMT' || timezone == 'UTC') {
+        // Already in UTC
+        return baseDate;
+      }
+    }
+
+    return baseDate;
   }
 
   int _getMonthNumber(String monthName) {

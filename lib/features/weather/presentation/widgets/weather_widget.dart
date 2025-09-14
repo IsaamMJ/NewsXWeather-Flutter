@@ -22,36 +22,6 @@ class WeatherWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<WeatherController>(
       builder: (controller) {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.weather == null) {
-          return const Center(child: Text('Failed to load weather data'));
-        }
-
-        final weather = controller.weather!;
-        final temperatureUnit = controller.selectedTemperatureUnit;
-
-        // Convert temperature based on the selected unit (Celsius or Fahrenheit)
-        double convertTemperature(double temperature) {
-          if (temperatureUnit == 'Fahrenheit') {
-            return (temperature * 9 / 5) + 32;
-          }
-          return temperature; // Default is Celsius
-        }
-
-        String getTemperatureLabel(double tempCelsius) {
-          if (tempCelsius >= 30) return 'Hot';
-          if (tempCelsius >= 20) return 'Warm';
-          if (tempCelsius >= 10) return 'Cool';
-          return 'Cold';
-        }
-
-        // Calculate the display temperature in the selected unit
-        final double displayTemp = convertTemperature(weather.temperature);
-        final tempLabel = getTemperatureLabel(weather.temperature);
-
         // Get the dynamic text color for light and dark themes
         Color textColor = AppColors.getTextPrimary(context);
 
@@ -59,8 +29,7 @@ class WeatherWidget extends StatelessWidget {
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.getCardColor(context).withOpacity(0.9),
-            // Dynamic card color based on theme
+            color: AppColors.getCardColor(context).withOpacity(0.9), // Dynamic card color based on theme
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -73,127 +42,225 @@ class WeatherWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // City & Temperature
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // City Name with Location Change Button
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                weather.city,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  color: textColor, // Dynamic text color
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            // Location Change Button
-                            GestureDetector(
-                              onTap: () => _showLocationChangeDialog(context),
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: AppColors
-                                      .getAccent(context)
-                                      .withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(
-                                  Icons.edit_location_alt,
-                                  size: 20,
-                                  color: AppColors.getAccent(context),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        // Location Type Indicator (Optional - for debugging/info)
-                        if (controller.isUsingManualLocation)
-                          Text(
-                            'Custom Location',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.getTextSecondary(context),
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        const SizedBox(height: 8),
-                        // Dynamic Temperature - wrapped in GetBuilder for updates
-                        Text(
-                          '${displayTemp.toStringAsFixed(
-                              1)}°${temperatureUnit == 'Celsius' ? 'C' : 'F'}',
-                          style: TextStyle(
-                            fontSize: 48,
-                            color: textColor, // Dynamic text color
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        // Dynamic Temperature Label - wrapped in GetBuilder for updates
-                        Text(
-                          tempLabel,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppColors.getTextSecondary(context),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.wb_cloudy_rounded, size: 48, color: textColor),
-                  // Dynamic icon color
-                ],
-              ),
+              // Location Header - ALWAYS VISIBLE
+              _buildLocationHeader(context, controller, textColor),
+
               const SizedBox(height: 16),
 
-              // Humidity & Wind
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.water_drop, color: textColor),
-                      // Dynamic icon color
-                      const SizedBox(width: 4),
-                      // Dynamic Humidity - wrapped in GetBuilder for updates
-                      Text(
-                        'Humidity: ${weather.humidity.toStringAsFixed(0)}%',
-                        style: TextStyle(
-                            color: textColor), // Dynamic text color
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.air, color: textColor), // Dynamic icon color
-                      const SizedBox(width: 4),
-                      // Dynamic Wind Speed - wrapped in GetBuilder for updates
-                      Text(
-                        'Wind: ${weather.windSpeed.toStringAsFixed(1)} m/s',
-                        style: TextStyle(
-                            color: textColor), // Dynamic text color
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Forecast
-              const ForecastWidget(),
+              // Weather Content - Loading/Error/Success states
+              if (controller.isLoading.value)
+                _buildLoadingState()
+              else if (controller.weather == null)
+                _buildErrorState(textColor)
+              else
+                _buildWeatherContent(controller, textColor),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildLocationHeader(BuildContext context, WeatherController controller, Color textColor) {
+    // Show current location info even when weather data is null
+    String locationName = 'Loading...';
+
+    if (controller.weather != null) {
+      locationName = controller.weather!.city;
+    } else if (controller.isUsingManualLocation && controller.savedLocation != null) {
+      locationName = controller.savedLocation!.name;
+    } else if (!controller.isLoading.value) {
+      locationName = 'Unknown Location';
+    }
+
+    return Row(
+      children: [
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // City Name with Location Change Button
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      locationName,
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Location Change Button - ALWAYS VISIBLE
+                  GestureDetector(
+                    onTap: () => _showLocationChangeDialog(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.getAccent(context).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.edit_location_alt,
+                        size: 20,
+                        color: AppColors.getAccent(context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              // Location Type Indicator
+              if (controller.isUsingManualLocation)
+                Text(
+                  'Custom Location',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.getTextSecondary(context),
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(40),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(Color textColor) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Colors.red.withOpacity(0.7),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load weather data',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please check your connection or try a different location',
+              style: TextStyle(
+                color: AppColors.getTextSecondary(Get.context!),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWeatherContent(WeatherController controller, Color textColor) {
+    final weather = controller.weather!;
+    final temperatureUnit = controller.selectedTemperatureUnit;
+
+    // Convert temperature based on the selected unit (Celsius or Fahrenheit)
+    double convertTemperature(double temperature) {
+      if (temperatureUnit == 'Fahrenheit') {
+        return (temperature * 9 / 5) + 32;
+      }
+      return temperature; // Default is Celsius
+    }
+
+    String getTemperatureLabel(double tempCelsius) {
+      if (tempCelsius >= 30) return 'Hot';
+      if (tempCelsius >= 20) return 'Warm';
+      if (tempCelsius >= 10) return 'Cool';
+      return 'Cold';
+    }
+
+    // Calculate the display temperature in the selected unit
+    final double displayTemp = convertTemperature(weather.temperature);
+    final tempLabel = getTemperatureLabel(weather.temperature);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Temperature Display
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${displayTemp.toStringAsFixed(1)}°${temperatureUnit == 'Celsius' ? 'C' : 'F'}',
+                  style: TextStyle(
+                    fontSize: 48,
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  tempLabel,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.getTextSecondary(Get.context!),
+                  ),
+                ),
+              ],
+            ),
+            Icon(Icons.wb_cloudy_rounded, size: 48, color: textColor),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Humidity & Wind
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.water_drop, color: textColor),
+                const SizedBox(width: 4),
+                Text(
+                  'Humidity: ${weather.humidity.toStringAsFixed(0)}%',
+                  style: TextStyle(color: textColor),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Icon(Icons.air, color: textColor),
+                const SizedBox(width: 4),
+                Text(
+                  'Wind: ${weather.windSpeed.toStringAsFixed(1)} m/s',
+                  style: TextStyle(color: textColor),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // Forecast
+        const ForecastWidget(),
+      ],
     );
   }
 }

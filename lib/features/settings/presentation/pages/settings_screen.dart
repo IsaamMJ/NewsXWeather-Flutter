@@ -6,6 +6,7 @@ import '../widget/category_selector.dart';
 import '../widget/section_card.dart';
 import '../widget/section_title.dart';
 import '../widget/temperature_toggle.dart';
+import '../../../../routes/app_routes.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -189,6 +190,76 @@ class SettingsScreen extends StatelessWidget {
                       Switch(
                         value: controller.isDarkMode.value,
                         onChanged: controller.toggleDarkMode,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Help & Feedback Section
+                SectionCard(
+                  color: cardColor,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SectionTitle('Help & Feedback'),
+                      const SizedBox(height: 12),
+                      InkWell(
+                        onTap: () => Get.toNamed(AppRoutes.feedback),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: theme.colorScheme.primary.withOpacity(0.2),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: theme.colorScheme.primary.withOpacity(0.1),
+                                ),
+                                child: Icon(
+                                  Icons.feedback_outlined,
+                                  color: theme.colorScheme.primary,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Send Feedback',
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Report bugs, suggest features, or share your thoughts',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: theme.colorScheme.onSurface.withOpacity(0.4),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
